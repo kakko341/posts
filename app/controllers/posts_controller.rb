@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
   before_action :require_user_logged_in
+  before_action :correct_user, only: [:destroy]
   
   def create
     @post = current_user.posts.build(posts_params)
@@ -7,7 +8,7 @@ class PostsController < ApplicationController
       flash[:success] = "ポストに投稿しました。"
       redirect_to root_url
     else
-      @posts = current_user.posts.order('created_at DESC').page(params[:page])
+      @posts = current_user.feed_posts.order('created_at DESC').page(params[:page])
       flash.now[:danger] = "ポスト投稿に失敗しました。"
       render 'toppages/index'
     end
@@ -22,10 +23,10 @@ class PostsController < ApplicationController
   private
   
   def posts_params
-    params.require(:post).permit(:content)    
+    params.require(:post).permit(:content, :image)    
   end
   
-  def current_user
+  def correct_user
     @post = current_user.posts.find_by(id: params[:id])
     unless @post
       redirect_to root_url

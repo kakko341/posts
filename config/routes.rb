@@ -1,13 +1,7 @@
 Rails.application.routes.draw do
-  get 'posts/create'
+  get 'relationships/create'
 
-  get 'posts/destroy'
-
-  get 'sessions/new'
-
-  get 'sessions/create'
-
-  get 'sessions/destroy'
+  get 'relationships/destroy'
 
   root to: 'toppages#index'
   
@@ -16,7 +10,17 @@ Rails.application.routes.draw do
   delete 'logout', to: 'sessions#destroy'
   
   get 'signup', to: 'users#new'
-  resources :users, only: [ :index, :show, :new, :create ]
+  resources :users, only: [ :index, :show, :new, :create ] do
+    member do
+      get :followings
+      get :followers
+    end
+  end
   
-  resources :posts, only: [ :create, :destroy]
+  resources :relationships, only: [:create, :destroy]
+  
+  resources :posts, only: [:create, :destroy] do
+    resources :retweets, only: [:new, :create]
+  end
+  resources :retweets, only: [:destroy]
 end
